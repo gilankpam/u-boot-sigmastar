@@ -364,12 +364,10 @@ void autoboot_command(const char *s)
 		}
 #endif
 
-#ifdef CONFIG_SSTAR_SD_BOOTSCRIPT
-		/* mabur: measured ~0.10 s on every autoboot with an empty SD
-		 * slot -- mmc_get_dev(0) initialises it and mmc_get_dev(1)
-		 * then prints "MMC Device 1 not found".  SD support itself is
-		 * kept: fatload/mmc still work on demand, so the SD
-		 * firmware-update recovery path is unaffected. */
+		/* SD recovery: a boot.scr on the card (OpenIPC's restore
+		 * script) runs instead of bootcmd.  It has to be probed on
+		 * every boot -- it is the way back when the flashed firmware
+		 * no longer boots -- and costs ~0.10 s with an empty slot. */
 		if (mmc_get_dev(0) && !run_command(SIZE_SCRIPT0, 0)) {
 			run_command(LOAD_SCRIPT0, 0);
 			run_command("source", 0);
@@ -381,7 +379,6 @@ void autoboot_command(const char *s)
 			run_command("source", 0);
 			return;
 		}
-#endif
 
 		dcache_enable();
 		icache_enable();
