@@ -23,6 +23,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SIZE_SCRIPT1 "fatsize mmc 1 boot.scr"
 #define LOAD_SCRIPT1 "fatload mmc 1 ${baseaddr} boot.scr"
 
+/* Run the script from where it was loaded.  A bare "source" reads
+ * CONFIG_SYS_LOAD_ADDR instead, so any board whose baseaddr was moved
+ * away from the default would silently skip its recovery card. */
+#define RUN_SCRIPT "source ${baseaddr}"
+
 #ifndef DEBUG_BOOTKEYS
 #define DEBUG_BOOTKEYS 0
 #endif
@@ -370,13 +375,13 @@ void autoboot_command(const char *s)
 		 * no longer boots -- and costs ~0.10 s with an empty slot. */
 		if (mmc_get_dev(0) && !run_command(SIZE_SCRIPT0, 0)) {
 			run_command(LOAD_SCRIPT0, 0);
-			run_command("source", 0);
+			run_command(RUN_SCRIPT, 0);
 			return;
 		}
 
 		if (mmc_get_dev(1) && !run_command(SIZE_SCRIPT1, 0)) {
 			run_command(LOAD_SCRIPT1, 0);
-			run_command("source", 0);
+			run_command(RUN_SCRIPT, 0);
 			return;
 		}
 
